@@ -4,9 +4,9 @@ use warnings;
 use POSIX 'SEEK_SET';
 use HTTP::Response;
 use IO::File;
-use 5.00800;
+use 5.008;
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 sub handler {
     my ($class, $code, ) = @_;
