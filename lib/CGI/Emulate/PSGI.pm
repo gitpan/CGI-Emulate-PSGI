@@ -3,10 +3,10 @@ use strict;
 use warnings;
 use POSIX 'SEEK_SET';
 use HTTP::Response;
-use IO::File;
-use 5.008;
+use IO::File ();
+use 5.00800;
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 sub handler {
     my ($class, $code, ) = @_;
@@ -103,8 +103,7 @@ CGI::Emulate::PSGI - PSGI adapter for CGI
 =head1 SYNOPSIS
 
     my $app = CGI::Emulate::PSGI->handler(sub {
-        # Existent CGI code, or just:
-        do "script.cgi";
+        # Existing CGI code
     });
 
 =head2 DESCRIPTION
@@ -124,15 +123,27 @@ If your application uses L<CGI>, be sure to cleanup the global
 variables in the handler loop yourself, so:
 
     my $app = CGI::Emulate::PSGI->handler(sub {
-        do "script-that-uses-cgi-pm.cgi";
-        CGI::initialize_globals() if defined &CGI::initialize_globals;
+        use CGI;
+        CGI::initialize_globals();
+        my $q = CGI->new;
+        # ...
     });
 
 Otherwise previous request variables will be reused in the new
 requests.
 
-Alternatively, you can install and use L<CGI::PSGI> from CPAN, but
-that would require you to slightly change your code from:
+Alternatively, you can install and use L<CGI::Compile> from CPAN and
+compiles your existing CGI scripts into a sub that is perfectly ready
+to be converted to PSGI application using this module.
+
+  my $sub = CGI::Compile->compile("/path/to/script.cgi");
+  my $app = CGI::Emulate::PSGI->handler($sub);
+
+This will take care of assigning an unique namespace for each script
+etc. See L<CGI::Compile> for details.
+
+You can also consider using L<CGI::PSGI> but that would require you to
+slightly change your code from:
 
   my $q = CGI->new;
   # ...
@@ -151,10 +162,6 @@ into:
 
 See L<CGI::PSGI> for details.
 
-=head1 SEE ALSO
-
-L<PSGI>.
-
 =head1 AUTHOR
 
 Tokuhiro Matsuno <tokuhirom@cpan.org>
@@ -171,5 +178,9 @@ it and/or modify it under the same terms as Perl itself.
 The full text of the license can be found in the
 LICENSE file included with this module.
 
+=head1 SEE ALSO
+
+L<PSGI> L<CGI::Compile> L<CGI::PSGI> L<Plack>
 
 =cut
+

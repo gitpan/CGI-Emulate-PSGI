@@ -12,5 +12,6 @@ author_tests 'xt';
 readme_from 'lib/CGI/Emulate/PSGI.pm';
 readme_markdown_from 'lib/CGI/Emulate/PSGI.pm';
 test_requires 'Test::More'       => 0.94;
-auto_include_deps;
+build_requires 'Test::More';
+auto_include;
 WriteAll;
