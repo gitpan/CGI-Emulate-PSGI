@@ -6,7 +6,7 @@ use HTTP::Response;
 use IO::File ();
 use 5.00800;
 
-our $VERSION = '0.03';
+our $VERSION = '0.04';
 
 sub handler {
     my ($class, $code, ) = @_;
@@ -32,7 +32,7 @@ sub handler {
             local *STDIN  = $env->{'psgi.input'};
             local *STDOUT = $stdout;
             local *STDERR = $env->{'psgi.errors'};
-            local *ENV    = $environment;
+            local @ENV{keys %$environment} = values %$environment;
 
             $code->();
         }
