@@ -1,38 +1,27 @@
 package CGI::Emulate::PSGI;
 use strict;
 use warnings;
+use CGI::Parse::PSGI;
 use POSIX 'SEEK_SET';
-use HTTP::Response;
 use IO::File ();
 use 5.00800;
 
-our $VERSION = '0.04';
+our $VERSION = '0.05';
 
 sub handler {
     my ($class, $code, ) = @_;
 
     return sub {
         my $env = shift;
-        no warnings;
-        my $environment = {
-            GATEWAY_INTERFACE => 'CGI/1.1',
-            # not in RFC 3875
-            HTTPS => ( ( $env->{'psgi.url_scheme'} eq 'https' ) ? 'ON' : 'OFF' ),
-            SERVER_SOFTWARE => "CGI-Emulate-PSGI",
-            REMOTE_ADDR     => '127.0.0.1',
-            REMOTE_HOST     => 'localhost',
-            REMOTE_PORT     => int( rand(64000) + 1000 ),    # not in RFC 3875
-            # REQUEST_URI     => $uri->path_query,                 # not in RFC 3875
-            ( map { $_ => $env->{$_} } grep !/^psgi\./, keys %$env )
-        };
 
         my $stdout  = IO::File->new_tmpfile;
 
         {
+            local %ENV = (%ENV, $class->emulate_environment($env));
+
             local *STDIN  = $env->{'psgi.input'};
             local *STDOUT = $stdout;
             local *STDERR = $env->{'psgi.errors'};
-            local @ENV{keys %$environment} = values %$environment;
 
             $code->();
         }
@@ -40,57 +29,27 @@ sub handler {
         seek( $stdout, 0, SEEK_SET )
             or croak("Can't seek stdout handle: $!");
 
-        my $headers;
-        while ( my $line = $stdout->getline ) {
-            $headers .= $line;
-            last if $headers =~ /\x0d?\x0a\x0d?\x0a$/;
-        }
-        unless ( defined $headers ) {
-            $headers = "HTTP/1.1 500 Internal Server Error\x0d\x0a";
-        }
-
-        unless ( $headers =~ /^HTTP/ ) {
-            $headers = "HTTP/1.1 200 OK\x0d\x0a" . $headers;
-        }
-
-        my $response = HTTP::Response->parse($headers);
-        $response->date( time() ) unless $response->date;
-
-        my $status = $response->header('Status') || 200;
-        $status =~ s/\s+.*$//; # remove ' OK' in '200 OK'
-
-        my $length = ( stat( $stdout ) )[7] - tell( $stdout );
-        if ( $response->code == 500 && !$length ) {
-            return [
-                500,
-                [ 'Content-Type' => 'text/html' ],
-                [ $response->error_as_HTML ]
-            ];
-        }
-
-        {
-            my $length = 0;
-            while ( $stdout->read( my $buffer, 4096 ) ) {
-                $length += length($buffer);
-                $response->add_content($buffer);
-            }
-
-            if ( $length && !$response->content_length ) {
-                $response->content_length($length);
-            }
-        }
-
-        return [
-            $status,
-            +[
-                map {
-                    my $k = $_;
-                    map { ( $k => $_ ) } $response->headers->header($_);
-                } $response->headers->header_field_names
-            ],
-            [$response->content],
-        ];
+        return CGI::Parse::PSGI::parse_cgi_output($stdout);
     };
+}
+
+sub emulate_environment {
+    my($class, $env) = @_;
+
+    no warnings;
+    my $environment = {
+        GATEWAY_INTERFACE => 'CGI/1.1',
+        # not in RFC 3875
+        HTTPS => ( ( $env->{'psgi.url_scheme'} eq 'https' ) ? 'ON' : 'OFF' ),
+        SERVER_SOFTWARE => "CGI-Emulate-PSGI",
+        REMOTE_ADDR     => '127.0.0.1',
+        REMOTE_HOST     => 'localhost',
+        REMOTE_PORT     => int( rand(64000) + 1000 ),    # not in RFC 3875
+        # REQUEST_URI     => $uri->path_query,                 # not in RFC 3875
+        ( map { $_ => $env->{$_} } grep !/^psgi\./, keys %$env )
+    };
+
+    return wantarray ? %$environment : $environment;
 }
 
 1;
@@ -115,7 +74,8 @@ supports.
 It works by translating the environment provided by the PSGI
 specification to one expected by the CGI specification. Likewise, it
 captures output as it would be prepared for the CGI standard, and
-translates it to the format expected for the PSGI standard.
+translates it to the format expected for the PSGI standard using
+L<CGI::Parse::PSGI> module.
 
 =head1 CGI.pm
 
@@ -162,6 +122,32 @@ into:
 
 See L<CGI::PSGI> for details.
 
+=head1 METHODS
+
+=over 4
+
+=item handler
+
+  my $app = CGI::Emulate::PSGI->handler($code);
+
+Creates a PSGI application code reference out of CGI code reference.
+
+=item emulate_environment
+
+  my %env = CGI::Emulate::PSGI->emulate_environment($env);
+
+Creates an environment hash out of PSGI environment hash. If your code
+or framework just needs an environment variable emulation, use this
+method like:
+
+  local %ENV = (%ENV, CGI::Emulate::PSGI->emulate_environment($env));
+  # run your application
+
+If you use C<handler> method to create a PSGI environment hash, this
+is automatically called in the created application.
+
+=back
+
 =head1 AUTHOR
 
 Tokuhiro Matsuno <tokuhirom@cpan.org>
@@ -180,7 +166,7 @@ LICENSE file included with this module.
 
 =head1 SEE ALSO
 
-L<PSGI> L<CGI::Compile> L<CGI::PSGI> L<Plack>
+L<PSGI> L<CGI::Compile> L<CGI::PSGI> L<Plack> L<CGI::Parse::PSGI>
 
 =cut
 
