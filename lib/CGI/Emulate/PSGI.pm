@@ -7,7 +7,7 @@ use IO::File ();
 use SelectSaver;
 use 5.00800;
 
-our $VERSION = '0.08';
+our $VERSION = '0.09';
 
 sub handler {
     my ($class, $code, ) = @_;
@@ -41,7 +41,6 @@ sub emulate_environment {
     no warnings;
     my $environment = {
         GATEWAY_INTERFACE => 'CGI/1.1',
-        # not in RFC 3875
         HTTPS => ( ( $env->{'psgi.url_scheme'} eq 'https' ) ? 'ON' : 'OFF' ),
         SERVER_SOFTWARE => "CGI-Emulate-PSGI",
         REMOTE_ADDR     => '127.0.0.1',
