@@ -7,7 +7,7 @@ use IO::File ();
 use SelectSaver;
 use 5.00800;
 
-our $VERSION = '0.10';
+our $VERSION = '0.11';
 
 sub handler {
     my ($class, $code, ) = @_;
@@ -47,7 +47,7 @@ sub emulate_environment {
         REMOTE_HOST     => 'localhost',
         REMOTE_PORT     => int( rand(64000) + 1000 ),    # not in RFC 3875
         # REQUEST_URI     => $uri->path_query,                 # not in RFC 3875
-        ( map { $_ => $env->{$_} } grep !/^psgi\./, keys %$env )
+        ( map { $_ => $env->{$_} } grep !/^psgix?\./, keys %$env )
     };
 
     return wantarray ? %$environment : $environment;
@@ -66,7 +66,7 @@ CGI::Emulate::PSGI - PSGI adapter for CGI
         # Existing CGI code
     });
 
-=head2 DESCRIPTION
+=head1 DESCRIPTION
 
 This module allows an application designed for the CGI environment to
 run in a PSGI environment, and thus on any of the backends that PSGI
@@ -157,7 +157,7 @@ Tatsuhiko Miyagawa
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (c) 2009 by tokuhirom.
+Copyright (c) 2009-2010 by tokuhirom.
 
 This program is free software; you can redistribute
 it and/or modify it under the same terms as Perl itself.
