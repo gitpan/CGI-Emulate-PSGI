@@ -5,9 +5,10 @@ use CGI::Parse::PSGI;
 use POSIX 'SEEK_SET';
 use IO::File ();
 use SelectSaver;
+use Carp qw(croak);
 use 5.00800;
 
-our $VERSION = '0.13';
+our $VERSION = '0.14';
 
 sub handler {
     my ($class, $code, ) = @_;
