@@ -3,12 +3,11 @@ abstract: 'PSGI adapter for CGI'
 author:
   - 'Tokuhiro Matsuno <tokuhirom@cpan.org>'
 build_requires:
-  ExtUtils::MakeMaker: 6.59
+  Test::More: 0.88
 configure_requires:
-  ExtUtils::MakeMaker: 6.59
-distribution_type: module
-dynamic_config: 1
-generated_by: 'Module::Install version 1.06'
+  ExtUtils::MakeMaker: 6.30
+dynamic_config: 0
+generated_by: 'Dist::Milla version v1.0.4, Dist::Zilla version 4.300038, CPAN::Meta::Converter version 2.132510'
 license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
@@ -16,11 +15,24 @@ meta-spec:
 name: CGI-Emulate-PSGI
 no_index:
   directory:
-    - inc
     - t
+    - xt
+    - inc
+    - share
+    - eg
+    - examples
 requires:
   HTTP::Response: 0
-  perl: 5.8.0
+  perl: 5.00801
 resources:
-  license: http://dev.perl.org/licenses/
-version: 0.15
+  bugtracker: https://github.com/tokuhirom/p5-cgi-emulate-psgi/issues
+  homepage: https://github.com/tokuhirom/p5-cgi-emulate-psgi
+  repository: https://github.com/tokuhirom/p5-cgi-emulate-psgi.git
+version: 0.16
+x_contributors:
+  - 'Bastian Blank <waldi@debian.org>'
+  - 'Clay Fouts <cfouts@liblime.com>'
+  - 'Kazuho Oku <kazuhooku@gmail.com>'
+  - 'Mark Stosberg <mark@stosberg.com>'
+  - 'Tatsuhiko Miyagawa <miyagawa@gmail.com>'
+  - 'Tokuhiro Matsuno <tokuhirom@gmail.com>'
