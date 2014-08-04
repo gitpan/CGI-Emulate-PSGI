@@ -8,7 +8,7 @@ use SelectSaver;
 use Carp qw(croak);
 use 5.008001;
 
-our $VERSION = '0.16';
+our $VERSION = '0.17';
 
 sub handler {
     my ($class, $code, ) = @_;
@@ -23,7 +23,7 @@ sub handler {
 
             local *STDIN;
             tie (*STDIN, 'CGI::Emulate::PSGI::InputHandle', $env->{'psgi.input'});
-            local *STDOUT = $stdout;
+            local *STDOUT = *$stdout;
             local *STDERR;
             tie (*STDERR, 'CGI::Emulate::PSGI::ErrorsHandle', $env->{'psgi.errors'});
 
