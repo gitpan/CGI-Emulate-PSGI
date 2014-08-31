@@ -22,13 +22,14 @@ no_index:
     - eg
     - examples
 requires:
+  CGI: '3.63'
   HTTP::Response: '0'
   perl: '5.008001'
 resources:
   bugtracker: https://github.com/tokuhirom/p5-cgi-emulate-psgi/issues
   homepage: https://github.com/tokuhirom/p5-cgi-emulate-psgi
   repository: https://github.com/tokuhirom/p5-cgi-emulate-psgi.git
-version: '0.18'
+version: '0.19'
 x_contributors:
   - 'Bastian Blank <waldi@debian.org>'
   - 'Clay Fouts <cfouts@liblime.com>'

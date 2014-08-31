@@ -37,8 +37,8 @@ CGI.pm
       my $sub = CGI::Compile->compile("/path/to/script.cgi");
       my $app = CGI::Emulate::PSGI->handler($sub);
 
-    This will take care of assigning an unique namespace for each script
-    etc. See CGI::Compile for details.
+    This will take care of assigning a unique namespace for each script etc.
+    See CGI::Compile for details.
 
     You can also consider using CGI::PSGI but that would require you to
     slightly change your code from:

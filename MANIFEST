@@ -16,5 +16,4 @@ t/02_parse.t
 t/03_socket.t
 t/04_utf8.t
 t/05_lint.t
-t/06_streams.t
 t/release-pod-syntax.t
